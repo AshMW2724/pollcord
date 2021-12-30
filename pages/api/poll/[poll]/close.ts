@@ -5,37 +5,20 @@ import type DiscordUser from '@/types/user';
 import { verify } from 'jsonwebtoken';
 import { config } from '@/utils/config';
 
-const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-export default async function Create(req: NextApiRequest, res: NextApiResponse) {
+export default async function Input(req: NextApiRequest, res: NextApiResponse) {
   const token = req.cookies.token ?? req.headers['authorization'];
   if (!token) return res.status(400).json({ success: false, message: 'No auth :(' });
   const user = verifyUser(token);
   if (!user?.id) return res.status(400).json({ success: false, message: 'No auth :(' });
   if (req.method !== 'POST') return res.status(400).json({ success: false, message: 'Gotta post something buddy...' });
   await dbConnect();
-  if (!req.body) return res.status(400).json({ success: false, message: 'Gotta post something buddy...' });
-  if (!['name', 'prompt', 'options'].every((x) => req.body.hasOwnProperty(x)))
-    return res.status(400).json({
-      success: false,
-      message: `${['name', 'prompt', 'options']
-        .filter((x) => (req.body.hasOwnProperty(x) ? false : true))
-        .join(', ')} required`,
-    });
-  if (req.body.options.length < 2 || req.body.options.length > 10)
-    return res.status(400).json({ success: false, message: 'Options must be between 2 and 10.' });
-
-  let gennedId = '';
-  for (let i = 0; i < 15; i++) gennedId += possible.charAt(Math.floor(Math.random() * possible.length));
-
+  if (!req.query.hasOwnProperty('poll'))
+    return res.status(400).json({ success: false, message: 'Make sure to add the poll ID' });
+  const poll = await Poll.findOne({ id: req.query.poll });
+  if (!poll) return res.status(400).json({ success: false, message: 'Poll not found' });
+  if (user.id !== poll.owner) return res.status(400).json({ success: false, message: 'You dont own this poll :(' });
   try {
-    const polls = await Poll.create({
-      id: gennedId,
-      owner: user.id,
-      name: req.body.name,
-      prompt: req.body.prompt,
-      options: req.body.options,
-    });
+    const polls = await Poll.updateOne({ _id: poll._id }, { $set: { open: false } });
     res.status(200).json({ success: true, data: polls });
   } catch (error) {
     res.status(400).json({ success: false, error: error });
