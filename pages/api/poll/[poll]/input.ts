@@ -17,6 +17,7 @@ export default async function Input(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ success: false, message: 'Make sure to add the poll ID' });
   const poll = await Poll.findOne({ id: req.query.poll });
   if (!poll) return res.status(400).json({ success: false, message: 'Poll not found' });
+  if (!poll.open) return res.status(400).json({ success: false, message: 'Poll is closed' });
   if (poll.inputs.find((m: { id: string }) => m.id === user.id))
     return res.status(400).json({ success: false, message: 'You already voted' });
   if (req.body.input > poll.inputs.options || req.body.input < 0)
