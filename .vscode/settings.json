@@ -1,0 +1,23 @@
+{
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "authback",
+    "Chakra",
+    "maxlength",
+    "noopener",
+    "noreferrer",
+    "Pollcord",
+    "popout",
+    "preconnect",
+    "Vercel"
+  ],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
