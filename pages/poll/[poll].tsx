@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
+  Tooltip,
 } from '@chakra-ui/react';
 import { useEffect, useRef, useState } from 'react';
 import type Poll from '@/types/poll';
@@ -154,12 +155,12 @@ export default function Dashboard(props: Props) {
                 </Heading>
               </Box>
               {voted ? (
-                <Box p={2}>
+                <Box p={2} ps={3}>
                   <AvatarGroup size="sm" max={10} minH="28px">
                     {poll.inputs
                       .filter((m: { input: number }) => m.input === i)
                       .map(({ id }: { id: string }) => (
-                        <Avatar name={id} src={`https://japi.rest/discord/v1/user/${id}/avatar`} key={id} />
+                        <User userId={id} key={id} />
                       ))}
                   </AvatarGroup>
                 </Box>
@@ -250,3 +251,26 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
   if (!user) return { props: { user: null, pollId: ctx.query.poll + '' } };
   return { props: { user, pollId: ctx.query.poll + '' } };
 };
+
+export function User(props: { userId: string }) {
+  const { userId } = props;
+  const [data, setData] = useState<DiscordUser>();
+  axios
+    .get(`https://japi.rest/discord/v1/user/${userId}`)
+    .then((e) => setData(e.data.data))
+    .catch(() => {
+      return;
+    });
+  return (
+    <Tooltip label={data?.username + '#' + data?.discriminator}>
+      <Avatar
+        name={userId}
+        src={`https://japi.rest/discord/v1/user/${userId}/avatar`}
+        size="sm"
+        key={userId}
+        ms={-1}
+        border="2px solid white"
+      />
+    </Tooltip>
+  );
+}
