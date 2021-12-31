@@ -149,7 +149,7 @@ export default function Dashboard(props: Props) {
                     <Text as="span" fontWeight="normal" opacity={0.5}>
                       {' '}
                       (
-                      {Math.floor(
+                      {Math.ceil(
                         (poll.inputs.filter((m: { input: number }) => m.input === i).length / poll.inputs.length) * 100
                       )}
                       %)
