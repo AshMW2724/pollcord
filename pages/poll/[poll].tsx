@@ -148,7 +148,10 @@ export default function Dashboard(props: Props) {
                   {voted ? (
                     <Text as="span" fontWeight="normal" opacity={0.5}>
                       {' '}
-                      ({(poll.inputs.filter((m: { input: number }) => m.input === i).length / poll.inputs.length) * 100}
+                      (
+                      {Math.floor(
+                        (poll.inputs.filter((m: { input: number }) => m.input === i).length / poll.inputs.length) * 100
+                      )}
                       %)
                     </Text>
                   ) : null}
@@ -255,12 +258,14 @@ export const getServerSideProps: GetServerSideProps<Props> = async function (ctx
 export function User(props: { userId: string }) {
   const { userId } = props;
   const [data, setData] = useState<DiscordUser>();
-  axios
-    .get(`https://japi.rest/discord/v1/user/${userId}`)
-    .then((e) => setData(e.data.data))
-    .catch(() => {
-      return;
-    });
+  useEffect(() => {
+    axios
+      .get(`https://japi.rest/discord/v1/user/${userId}`)
+      .then((e) => setData(e.data.data))
+      .catch(() => {
+        return;
+      });
+  }, []);
   return (
     <Tooltip label={data?.username + '#' + data?.discriminator}>
       <Avatar
